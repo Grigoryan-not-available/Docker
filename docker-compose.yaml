@@ -1,0 +1,50 @@
+version: '3.5'
+services:
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:alpine-4.0-latest
+    restart: always
+    ports:
+      - "10051:10051"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro 
+    links:
+      - mysql-server:mysql-server
+    environment:
+      MYSQL_USER         : zabbix_user
+      MYSQL_PASSWORD     : zabbix_pwd
+      MYSQL_ROOT_PASSWORD: sql_root
+    depends_on:
+      - mysql-server
+
+  zabbix-web-nginx-mysql:
+    image: zabbix/zabbix-web-nginx-mysql:alpine-4.0-latest
+    restart: always
+    ports:
+      - "80:8080"
+      - "443:8443"
+    links:
+      - mysql-server:mysql-server
+      - zabbix-server:zabbix-server
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      MYSQL_USER         : zabbix_user
+      MYSQL_PASSWORD     : zabbix_pwd
+    depends_on:
+      - mysql-server
+      - zabbix-server
+
+  mysql-server:
+    image: mysql:latest
+    restart: always    
+    command:
+      - mysqld
+      - --character-set-server=utf8
+      - --collation-server=utf8_bin
+      - --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_USER         : zabbix_user
+      MYSQL_PASSWORD     : zabbix_pwd
+      MYSQL_ROOT_PASSWORD: sql_root
