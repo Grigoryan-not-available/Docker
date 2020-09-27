@@ -13,7 +13,6 @@ services:
     environment:
       MYSQL_USER         : zabbix_user
       MYSQL_PASSWORD     : zabbix_pwd
-      MYSQL_ROOT_PASSWORD: sql_root
     depends_on:
       - mysql-server
 
